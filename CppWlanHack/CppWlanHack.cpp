@@ -11,8 +11,8 @@
 
 const std::string profileFileName = "profile.xml";
 
-void connectToWPAPSK(WLAN_AVAILABLE_NETWORK &);
-void connectToRSNAPSK(WLAN_AVAILABLE_NETWORK &);
+void connectToWPAPSK(HANDLE, WLAN_AVAILABLE_NETWORK &, PWLAN_INTERFACE_INFO);
+void connectToRSNAPSK(HANDLE, WLAN_AVAILABLE_NETWORK &, PWLAN_INTERFACE_INFO);
 
 void tryToConnect(HANDLE, PWLAN_INTERFACE_INFO);
 std::string getProfileXml(std::string, std::string, std::string, std::string);
@@ -22,6 +22,8 @@ void showAvailableEntries(HANDLE, PWLAN_INTERFACE_INFO);
 
 void freeWlanResources(PWLAN_INTERFACE_INFO_LIST);
 HANDLE initializeWlanClient();
+
+void replaceString(std::string& subject, const std::string& search, const std::string& replace);
 
 int main()
 {
@@ -42,7 +44,7 @@ void tryToConnect(HANDLE wlanClient, PWLAN_INTERFACE_INFO wlanInterface)
 	{
 		WLAN_AVAILABLE_NETWORK networkEntry = networkList->Network[networkIndex];
 
-		if (strcmp((char*)networkEntry.dot11Ssid.ucSSID, "UKrtelecom_5E6B80") == 0) {
+		if (strcmp((char*)networkEntry.dot11Ssid.ucSSID, "Khomiak_na_XATI") == 0) {
 			switch (networkEntry.dot11DefaultAuthAlgorithm) {
 				case DOT11_AUTH_ALGO_80211_OPEN:
 					std::cout << "802.11 Open " << networkEntry.dot11DefaultAuthAlgorithm << std::endl;
@@ -54,10 +56,10 @@ void tryToConnect(HANDLE wlanClient, PWLAN_INTERFACE_INFO wlanInterface)
 					std::cout << "WPA " << networkEntry.dot11DefaultAuthAlgorithm << std::endl;
 					break;
 				case DOT11_AUTH_ALGO_WPA_PSK:
-					connectToWPAPSK(networkEntry);
+					connectToWPAPSK(wlanClient, networkEntry, wlanInterface);
 					break;
 				case DOT11_AUTH_ALGO_RSNA_PSK:
-					connectToRSNAPSK(networkEntry);
+					connectToRSNAPSK(wlanClient, networkEntry, wlanInterface);
 				default:
 					break;
 			}
@@ -65,12 +67,16 @@ void tryToConnect(HANDLE wlanClient, PWLAN_INTERFACE_INFO wlanInterface)
 	}
 }
 
-void connectToRSNAPSK(WLAN_AVAILABLE_NETWORK & entry) {
+void connectToRSNAPSK(HANDLE wlanClient, WLAN_AVAILABLE_NETWORK & entry, PWLAN_INTERFACE_INFO wlanInterface) {
 	std::string authentication = "RSNAPSK";
-	std::string profileXml = getProfileXml((std::string)(char*)entry.dot11Ssid.ucSSID, authentication, std::to_string(entry.dot11DefaultCipherAlgorithm), "UKR_5532");
+	std::string profileXml = getProfileXml((std::string)(char*)entry.dot11Ssid.ucSSID, authentication, std::to_string(entry.dot11DefaultCipherAlgorithm), "77777777");
+
+	//TODO see profile template for appropriate type, reason code return "bad profile"
+	DWORD reasonCode;
+	int setProfileResult = WlanSetProfile(wlanClient, &wlanInterface->InterfaceGuid, 0, (LPCWSTR)profileXml.c_str(), nullptr, true, nullptr, &reasonCode);
 }
 
-void connectToWPAPSK(WLAN_AVAILABLE_NETWORK &entry) {
+void connectToWPAPSK(HANDLE wlanClient, WLAN_AVAILABLE_NETWORK & entry, PWLAN_INTERFACE_INFO wlanInterface) {
 	std::string authentication = "WPAPSK";
 	std::string profileXml = getProfileXml((std::string)(char*)entry.dot11Ssid.ucSSID, authentication, std::to_string(entry.dot11DefaultCipherAlgorithm), "UKR_5532");
 }
@@ -82,10 +88,14 @@ std::string getProfileXml(std::string profileName, std::string authentication, s
 	if (xml) {
 		xmlContent = std::string((std::istreambuf_iterator<char>(xml)),
 			std::istreambuf_iterator<char>());
-	}
-	else
-		return std::string();
 
+		replaceString(xmlContent, "<name>{0}</name>", "<name>" + profileName + "</name>");
+		replaceString(xmlContent, "<authentication>{1}</authentication>", "<authentication>" + authentication + "</authentication>");
+		replaceString(xmlContent, "<encryption>{2}</encryption>", "<encryption>" + encryption + "</encryption>");
+		replaceString(xmlContent, "<keyMaterial>{3}</keyMaterial>", "<keyMaterial>" + key + "</keyMaterial>");
+	}
+
+	xml.close();
 	return xmlContent;
 }
 
@@ -167,6 +177,15 @@ HANDLE initializeWlanClient() {
 		return nullptr;
 	}
 	return hClient;
+}
+
+void replaceString(std::string & subject, const std::string & search, const std::string & replace)
+{
+	size_t pos = 0;
+	while ((pos = subject.find(search, pos)) != std::string::npos) {
+		subject.replace(pos, search.length(), replace);
+		pos += replace.length();
+	}
 }
 
 void freeWlanResources(PWLAN_INTERFACE_INFO_LIST wlanInterfaces) {

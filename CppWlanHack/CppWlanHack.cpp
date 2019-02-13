@@ -1,8 +1,3 @@
-// WlanHack.cpp : This file contains the 'main' function. Program execution begins and ends there.
-//
-
-#include "pch.h"
-
 #include <iostream>
 #include <windows.h>
 #include <wlanapi.h>
@@ -73,13 +68,11 @@ void tryToConnect(HANDLE wlanClient, PWLAN_INTERFACE_INFO wlanInterface)
 void connectToRSNAPSK(WLAN_AVAILABLE_NETWORK & entry) {
 	std::string authentication = "RSNAPSK";
 	std::string profileXml = getProfileXml((std::string)(char*)entry.dot11Ssid.ucSSID, authentication, std::to_string(entry.dot11DefaultCipherAlgorithm), "UKR_5532");
-
 }
 
 void connectToWPAPSK(WLAN_AVAILABLE_NETWORK &entry) {
 	std::string authentication = "WPAPSK";
 	std::string profileXml = getProfileXml((std::string)(char*)entry.dot11Ssid.ucSSID, authentication, std::to_string(entry.dot11DefaultCipherAlgorithm), "UKR_5532");
-	
 }
 
 std::string getProfileXml(std::string profileName, std::string authentication, std::string encryption, std::string key) {
@@ -146,6 +139,7 @@ void showAvailableEntries(HANDLE wlanClient, PWLAN_INTERFACE_INFO wlanInterface)
 		std::cout << std::endl;
 	}
 }
+
 PWLAN_INTERFACE_INFO getWlanInfo(HANDLE wlanClient) {
 	PWLAN_INTERFACE_INFO_LIST interfacesList = nullptr;
 	DWORD enumInterfacesResult = WlanEnumInterfaces(wlanClient, nullptr, &interfacesList);

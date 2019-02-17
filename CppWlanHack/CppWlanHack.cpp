@@ -11,6 +11,8 @@
 
 const std::string profileFileName = "profile.xml";
 
+void wrapSetProfileResult(int resultCode, int reasonCode);
+
 void connectToWPAPSK(HANDLE, WLAN_AVAILABLE_NETWORK &, PWLAN_INTERFACE_INFO);
 void connectToRSNAPSK(HANDLE, WLAN_AVAILABLE_NETWORK &, PWLAN_INTERFACE_INFO);
 
@@ -29,6 +31,8 @@ int main()
 {
 	HANDLE wlanClient = initializeWlanClient();
 	PWLAN_INTERFACE_INFO wlanInfo = getWlanInfo(wlanClient);
+
+	showAvailableEntries(wlanClient, wlanInfo);
 
 	tryToConnect(wlanClient, wlanInfo);
 	
@@ -69,16 +73,34 @@ void tryToConnect(HANDLE wlanClient, PWLAN_INTERFACE_INFO wlanInterface)
 
 void connectToRSNAPSK(HANDLE wlanClient, WLAN_AVAILABLE_NETWORK & entry, PWLAN_INTERFACE_INFO wlanInterface) {
 	std::string authentication = "RSNAPSK";
-	std::string profileXml = getProfileXml((std::string)(char*)entry.dot11Ssid.ucSSID, authentication, std::to_string(entry.dot11DefaultCipherAlgorithm), "77777777");
+	std::string profileXml = getProfileXml((std::string)(char*)entry.dot11Ssid.ucSSID, authentication, "AES", "77777777");
 
 	//TODO see profile template for appropriate type, reason code return "bad profile"
 	DWORD reasonCode;
 	int setProfileResult = WlanSetProfile(wlanClient, &wlanInterface->InterfaceGuid, 0, (LPCWSTR)profileXml.c_str(), nullptr, true, nullptr, &reasonCode);
+	wrapSetProfileResult(setProfileResult, reasonCode);
+}
+
+void wrapSetProfileResult(int resultCode, int reasonCode)
+{
+	if (resultCode != ERROR_SUCCESS) {
+		std::cout << "some error is occured, error code: " << resultCode << std::endl;
+
+		switch (resultCode) {
+		case ERROR_ACCESS_DENIED: std::cout << "ACCESS DENIED"; break;
+		case ERROR_ALREADY_EXISTS: std::cout << "ALREADY EXISTS"; break;
+		case ERROR_BAD_PROFILE: std::cout << "BAD PROFILE"; break;
+		case ERROR_INVALID_PARAMETER: std::cout << "INVALID PARAMETER"; break;
+		case ERROR_NO_MATCH: std::cout << "NO MATCH"; break;
+		default: std::cout << "other error"; break;
+		}
+		std::cout << std::endl;
+	}
 }
 
 void connectToWPAPSK(HANDLE wlanClient, WLAN_AVAILABLE_NETWORK & entry, PWLAN_INTERFACE_INFO wlanInterface) {
 	std::string authentication = "WPAPSK";
-	std::string profileXml = getProfileXml((std::string)(char*)entry.dot11Ssid.ucSSID, authentication, std::to_string(entry.dot11DefaultCipherAlgorithm), "UKR_5532");
+	std::string profileXml = getProfileXml((std::string)(char*)entry.dot11Ssid.ucSSID, authentication, "AES", "UKR_5532");
 }
 
 std::string getProfileXml(std::string profileName, std::string authentication, std::string encryption, std::string key) {
@@ -136,11 +158,11 @@ void showAvailableEntries(HANDLE wlanClient, PWLAN_INTERFACE_INFO wlanInterface)
 			case DOT11_AUTH_ALGO_WPA_NONE:
 				std::cout << "WPA-None " << networkEntry.dot11DefaultAuthAlgorithm << std::endl;
 				break;
-			case DOT11_AUTH_ALGO_RSNA:
-				std::cout << "RSNA " << networkEntry.dot11DefaultAuthAlgorithm << std::endl;
-				break;
 			case DOT11_AUTH_ALGO_RSNA_PSK:
 				std::cout << "RSNA with PSK" << networkEntry.dot11DefaultAuthAlgorithm << std::endl;
+				break;
+			case DOT11_AUTH_ALGO_RSNA:
+				std::cout << "RSNA " << networkEntry.dot11DefaultAuthAlgorithm << std::endl;
 				break;
 			default:
 				std::cout << "Other " << networkEntry.dot11DefaultAuthAlgorithm << std::endl;

@@ -152,6 +152,12 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="CppWlanHack.cpp" />
+    <ClCompile Include="WlanErrorWrapper.cpp" />
+    <ClCompile Include="WlanWrapper.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="WlanErrorWrapper.h" />
+    <ClInclude Include="WlanWrapper.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

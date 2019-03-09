@@ -6,6 +6,8 @@
 #include <string>
 #include <codecvt>
 
+#include "WlanWrapper.h"
+
 #pragma comment(lib, "wlanapi.lib")
 #pragma comment(lib, "ole32.lib")
 
@@ -29,7 +31,9 @@ void replaceString(std::string& subject, const std::string& search, const std::s
 
 int main()
 {
-	const auto& wlanClient = initialize_wlan_client();
+	WlanWrapper wlan;
+	const auto& wlanClient = wlan.initializeWlanClient();
+
 	const auto wlan_info = getWlanInfo(wlanClient);
 
 	show_available_entries(wlanClient, wlan_info);
@@ -81,6 +85,23 @@ void connect_to_rsnapsk(HANDLE wlanClient, WLAN_AVAILABLE_NETWORK & entry, PWLAN
 	DWORD reasonCode;
 	const int set_profile_result = WlanSetProfile(wlanClient, &wlan_interface->InterfaceGuid, 0, reinterpret_cast<LPCWSTR>(unicode_profile_xml.c_str()), nullptr, true, nullptr, &reasonCode);
 	wrap_set_profile_result(set_profile_result, reasonCode);
+
+	WLAN_CONNECTION_PARAMETERS params = {};
+	params.dot11BssType = entry.dot11BssType;
+	params.dwFlags = entry.dwFlags;
+
+	params.pDesiredBssidList = 0;
+
+	params.pDot11Ssid = &entry.dot11Ssid;
+	params.strProfile = unicode_profile_xml.c_str();
+	params.wlanConnectionMode = wlan_connection_mode_temporary_profile;
+
+	auto connectResult = WlanConnect(wlanClient, &wlan_interface->InterfaceGuid, &params, nullptr);
+
+	if(connectResult != ERROR_SUCCESS)
+		std::cout << "CANNOT CONNECT !\n" << std::endl;
+	else
+		std::cout << "CONNECT SUCCESS !\n" << std::endl;
 }
 
 void wrap_set_profile_result(const int result_code, const int reason_code)

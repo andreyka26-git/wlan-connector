@@ -4,6 +4,7 @@
 #include <wtypes.h>
 #include <fstream>
 #include <string>
+#include <codecvt>
 
 #pragma comment(lib, "wlanapi.lib")
 #pragma comment(lib, "ole32.lib")
@@ -46,7 +47,7 @@ void try_to_connect(const HANDLE &wlan_client, PWLAN_INTERFACE_INFO wlan_interfa
 	{
 		WLAN_AVAILABLE_NETWORK network_entry = network_list->Network[network_index];
 
-		if (strcmp(reinterpret_cast<char*>(network_entry.dot11Ssid.ucSSID), "Khomiak_na_XATI") == 0) {
+		if (strcmp(reinterpret_cast<char*>(network_entry.dot11Ssid.ucSSID), "UKrtelecom_5E6B80") == 0) {
 			switch (network_entry.dot11DefaultAuthAlgorithm) {
 				case DOT11_AUTH_ALGO_80211_OPEN:
 					std::cout << "802.11 Open " << network_entry.dot11DefaultAuthAlgorithm << std::endl;
@@ -70,12 +71,15 @@ void try_to_connect(const HANDLE &wlan_client, PWLAN_INTERFACE_INFO wlan_interfa
 }
 
 void connect_to_rsnapsk(HANDLE wlanClient, WLAN_AVAILABLE_NETWORK & entry, PWLAN_INTERFACE_INFO wlan_interface) {
-	const std::string authentication = "RSNAPSK";
-	auto profile_xml = get_profile_xml(static_cast<std::string>(reinterpret_cast<char*>(entry.dot11Ssid.ucSSID)), authentication, "AES", "77777777");
+	const std::string authentication = "WPA2PSK";
+	auto profile_xml = get_profile_xml(static_cast<std::string>(reinterpret_cast<char*>(entry.dot11Ssid.ucSSID)), authentication, "AES", "UKR_5532");
+
+	std::wstring_convert<std::codecvt_utf8<wchar_t>> myconv;
+	std::wstring unicode_profile_xml = myconv.from_bytes(profile_xml);
 
 	//TODO see profile template for appropriate type, reason code return "bad profile"
 	DWORD reasonCode;
-	const int set_profile_result = WlanSetProfile(wlanClient, &wlan_interface->InterfaceGuid, 0, reinterpret_cast<LPCWSTR>(profile_xml.c_str()), nullptr, true, nullptr, &reasonCode);
+	const int set_profile_result = WlanSetProfile(wlanClient, &wlan_interface->InterfaceGuid, 0, reinterpret_cast<LPCWSTR>(unicode_profile_xml.c_str()), nullptr, true, nullptr, &reasonCode);
 	wrap_set_profile_result(set_profile_result, reasonCode);
 }
 

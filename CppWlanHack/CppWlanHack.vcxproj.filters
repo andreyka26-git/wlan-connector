@@ -24,12 +24,24 @@
     <ClCompile Include="WlanErrorWrapper.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="ProfileHelper.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="StringHelper.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="WlanWrapper.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="WlanErrorWrapper.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ProfileHelper.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="StringHelper.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

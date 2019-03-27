@@ -47,7 +47,7 @@ PWLAN_AVAILABLE_NETWORK_LIST WlanWrapper::getAvailableEntries()
 void WlanWrapper::connect_to_rsnapsk(WLAN_AVAILABLE_NETWORK entry)
 {
 	const std::string authentication = "WPA2PSK";
-	auto profile_xml = profile_helper->get_profile_xml(static_cast<std::string>(reinterpret_cast<char*>(entry.dot11Ssid.ucSSID)), authentication, "AES", "77777777");
+	auto profile_xml = profile_helper->get_profile_xml(static_cast<std::string>(reinterpret_cast<char*>(entry.dot11Ssid.ucSSID)), authentication, "AES", "drabyqq007");
 
 	//TODO change this to automatically get wstring instead of string
 	std::wstring_convert<std::codecvt_utf8<wchar_t>> myconv;
@@ -58,14 +58,13 @@ void WlanWrapper::connect_to_rsnapsk(WLAN_AVAILABLE_NETWORK entry)
 	WlanErrorWrapper::wrapSetProfileResult(set_profile_result, reasonCode);
 
 	WLAN_CONNECTION_PARAMETERS params = {};
-	params.dot11BssType = entry.dot11BssType;
-	params.dwFlags = entry.dwFlags;
+	
+	params.wlanConnectionMode = wlan_connection_mode_profile;
+	params.strProfile = (LPCWSTR)unicode_profile_xml.c_str();
+	params.pDot11Ssid = nullptr;
 
 	params.pDesiredBssidList = 0;
-
-	params.pDot11Ssid = &entry.dot11Ssid;
-	params.strProfile = unicode_profile_xml.c_str();
-	params.wlanConnectionMode = wlan_connection_mode_temporary_profile;
+	params.dot11BssType = entry.dot11BssType;
 
 	auto connectResult = WlanConnect(wlan_client, &wlan_interface_info->InterfaceGuid, &params, nullptr);
 
@@ -80,7 +79,7 @@ void WlanWrapper::connectToWifi()
 	{
 		WLAN_AVAILABLE_NETWORK network_entry = network_list->Network[network_index];
 		
-		if (strcmp(reinterpret_cast<char*>(network_entry.dot11Ssid.ucSSID), "Khomiak_na_XATI") == 0) {
+		if (strcmp(reinterpret_cast<char*>(network_entry.dot11Ssid.ucSSID), "77") == 0) {
 			switch (network_entry.dot11DefaultAuthAlgorithm) {
 			case DOT11_AUTH_ALGO_80211_OPEN:
 				std::cout << "802.11 Open " << network_entry.dot11DefaultAuthAlgorithm << std::endl;
@@ -96,6 +95,7 @@ void WlanWrapper::connectToWifi()
 				break;
 			case DOT11_AUTH_ALGO_RSNA_PSK:
 				connect_to_rsnapsk(network_entry);
+				break;
 			default:
 				break;
 			}

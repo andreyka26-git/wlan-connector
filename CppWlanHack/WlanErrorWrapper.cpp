@@ -106,7 +106,16 @@ bool WlanErrorWrapper::wrapSetProfileResult(const DWORD result_code, const DWORD
 bool WlanErrorWrapper::wrapConnectResult(DWORD connectResult)
 {
 	if (connectResult != ERROR_SUCCESS) {
+
 		std::cout << "CANNOT CONNECT !\n" << std::endl;
+
+		switch (connectResult) {
+		case ERROR_INVALID_PARAMETER: std::cout << "Some parameters is invalid." << std::endl; break;
+		case ERROR_INVALID_HANDLE: std::cout << "Invalid handle." << std::endl; break;
+		case ERROR_ACCESS_DENIED: std::cout << "The caller does not have sufficient permissions." << std::endl; break;
+		default: std::cout << "Some other kind of error." << std::endl; break;
+		}
+		
 		return false;
 	}
 	return true;

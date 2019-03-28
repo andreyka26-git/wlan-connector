@@ -59,12 +59,13 @@ void WlanWrapper::connect_to_rsnapsk(WLAN_AVAILABLE_NETWORK entry)
 
 	WLAN_CONNECTION_PARAMETERS params = {};
 	
-	params.wlanConnectionMode = wlan_connection_mode_profile;
+	params.wlanConnectionMode = wlan_connection_mode_discovery_secure;
 	params.strProfile = (LPCWSTR)unicode_profile_xml.c_str();
-	params.pDot11Ssid = nullptr;
+	params.pDot11Ssid = &entry.dot11Ssid;
 
 	params.pDesiredBssidList = 0;
 	params.dot11BssType = entry.dot11BssType;
+	params.dwFlags = WLAN_CONNECTION_PERSIST_DISCOVERY_PROFILE;
 
 	auto connectResult = WlanConnect(wlan_client, &wlan_interface_info->InterfaceGuid, &params, nullptr);
 

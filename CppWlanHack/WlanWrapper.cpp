@@ -47,7 +47,7 @@ PWLAN_AVAILABLE_NETWORK_LIST WlanWrapper::getAvailableEntries()
 void WlanWrapper::connect_to_rsnapsk(WLAN_AVAILABLE_NETWORK entry)
 {
 	const std::string authentication = "WPA2PSK";
-	auto profile_xml = profile_helper->get_profile_xml(static_cast<std::string>(reinterpret_cast<char*>(entry.dot11Ssid.ucSSID)), authentication, "AES", "drabyqq007");
+	auto profile_xml = profile_helper->get_profile_xml(static_cast<std::string>(reinterpret_cast<char*>(entry.dot11Ssid.ucSSID)), authentication, "AES", "UKR_5532");
 
 	//TODO change this to automatically get wstring instead of string
 	std::wstring_convert<std::codecvt_utf8<wchar_t>> myconv;
@@ -59,13 +59,13 @@ void WlanWrapper::connect_to_rsnapsk(WLAN_AVAILABLE_NETWORK entry)
 
 	WLAN_CONNECTION_PARAMETERS params = {};
 	
-	params.wlanConnectionMode = wlan_connection_mode_discovery_secure;
-	params.strProfile = (LPCWSTR)unicode_profile_xml.c_str();
-	params.pDot11Ssid = &entry.dot11Ssid;
+	params.wlanConnectionMode = wlan_connection_mode_profile;
+	params.strProfile = entry.strProfileName;
+	params.pDot11Ssid = nullptr; //get from profile
 
 	params.pDesiredBssidList = 0;
 	params.dot11BssType = entry.dot11BssType;
-	params.dwFlags = WLAN_CONNECTION_PERSIST_DISCOVERY_PROFILE;
+	params.dwFlags = 0;
 
 	auto connectResult = WlanConnect(wlan_client, &wlan_interface_info->InterfaceGuid, &params, nullptr);
 
@@ -80,7 +80,7 @@ void WlanWrapper::connectToWifi()
 	{
 		WLAN_AVAILABLE_NETWORK network_entry = network_list->Network[network_index];
 		
-		if (strcmp(reinterpret_cast<char*>(network_entry.dot11Ssid.ucSSID), "77") == 0) {
+		if (strcmp(reinterpret_cast<char*>(network_entry.dot11Ssid.ucSSID), "UKrtelecom_5E6B80") == 0) {
 			switch (network_entry.dot11DefaultAuthAlgorithm) {
 			case DOT11_AUTH_ALGO_80211_OPEN:
 				std::cout << "802.11 Open " << network_entry.dot11DefaultAuthAlgorithm << std::endl;

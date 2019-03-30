@@ -1,8 +1,8 @@
-#include "WlanErrorWrapper.h"
+#include "WlanApiErrorWrapper.h"
 #include <iostream>
 #include <windows.h>
 
-bool WlanErrorWrapper::wrapOpenHandleResult(const DWORD open_handle_result)
+bool WlanApiErrorWrapper::wrapOpenHandleResult(const DWORD open_handle_result)
 {
 	if (open_handle_result != ERROR_SUCCESS) {
 		std::cout << "WlanOpenHandle failed with error: " << open_handle_result << std::endl;
@@ -12,7 +12,7 @@ bool WlanErrorWrapper::wrapOpenHandleResult(const DWORD open_handle_result)
 	return true;
 }
 
-bool WlanErrorWrapper::wrapEnumInterfacesResult(const DWORD enum_interfaces_result)
+bool WlanApiErrorWrapper::wrapEnumInterfacesResult(const DWORD enum_interfaces_result)
 {
 	if (enum_interfaces_result != ERROR_SUCCESS) {
 		std::cout << "WlanEnumInterfacesfailed with errors: " << enum_interfaces_result << std::endl;
@@ -22,7 +22,7 @@ bool WlanErrorWrapper::wrapEnumInterfacesResult(const DWORD enum_interfaces_resu
 	return true;
 }
 
-bool WlanErrorWrapper::wrapGetNetworkListResult(const DWORD get_network_list_result)
+bool WlanApiErrorWrapper::wrapGetNetworkListResult(const DWORD get_network_list_result)
 {
 	if (get_network_list_result != ERROR_SUCCESS) {
 		std::cout << "WlanGetAvailableNetworkList with errors: " << get_network_list_result << std::endl;
@@ -32,7 +32,7 @@ bool WlanErrorWrapper::wrapGetNetworkListResult(const DWORD get_network_list_res
 	return true;
 }
 
-bool WlanErrorWrapper::wrapSetProfileResult(const DWORD result_code, const DWORD reason_code)
+bool WlanApiErrorWrapper::wrapSetProfileResult(const DWORD result_code, const DWORD reason_code)
 {
 	if (result_code != ERROR_SUCCESS) {
 		std::cout << "some error is occured, error code: " << result_code << std::endl;
@@ -103,7 +103,7 @@ bool WlanErrorWrapper::wrapSetProfileResult(const DWORD result_code, const DWORD
 	return true;
 }
 
-bool WlanErrorWrapper::wrapConnectResult(DWORD connectResult)
+bool WlanApiErrorWrapper::wrapConnectResult(DWORD connectResult)
 {
 	if (connectResult != ERROR_SUCCESS) {
 
@@ -121,10 +121,10 @@ bool WlanErrorWrapper::wrapConnectResult(DWORD connectResult)
 	return true;
 }
 
-WlanErrorWrapper::WlanErrorWrapper()
+WlanApiErrorWrapper::WlanApiErrorWrapper()
 {
 }
 
-WlanErrorWrapper::~WlanErrorWrapper()
+WlanApiErrorWrapper::~WlanApiErrorWrapper()
 {
 }

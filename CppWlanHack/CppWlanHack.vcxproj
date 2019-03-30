@@ -154,14 +154,14 @@
     <ClCompile Include="CppWlanHack.cpp" />
     <ClCompile Include="ProfileHelper.cpp" />
     <ClCompile Include="StringHelper.cpp" />
-    <ClCompile Include="WlanErrorWrapper.cpp" />
-    <ClCompile Include="WlanWrapper.cpp" />
+    <ClCompile Include="WlanApiErrorWrapper.cpp" />
+    <ClCompile Include="WlanApiWrapper.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ProfileHelper.h" />
     <ClInclude Include="StringHelper.h" />
-    <ClInclude Include="WlanErrorWrapper.h" />
-    <ClInclude Include="WlanWrapper.h" />
+    <ClInclude Include="WlanApiErrorWrapper.h" />
+    <ClInclude Include="WlanApiWrapper.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

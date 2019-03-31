@@ -152,12 +152,14 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="CppWlanHack.cpp" />
+    <ClCompile Include="PasswordManager.cpp" />
     <ClCompile Include="ProfileHelper.cpp" />
     <ClCompile Include="StringHelper.cpp" />
     <ClCompile Include="WlanApiErrorWrapper.cpp" />
     <ClCompile Include="WlanApiWrapper.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="PasswordManager.h" />
     <ClInclude Include="ProfileHelper.h" />
     <ClInclude Include="StringHelper.h" />
     <ClInclude Include="WlanApiErrorWrapper.h" />

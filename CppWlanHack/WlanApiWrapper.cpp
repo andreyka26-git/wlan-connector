@@ -21,9 +21,9 @@ void WlanApiWrapper::scanEntries()
 	}
 }
 
-void WlanApiWrapper::tryConnectToAll()
+void WlanApiWrapper::connectToAll()
 {
-	tryScanEntries();
+	scanEntries();
 
 	std::for_each(std::begin(*entries), std::end(*entries), [this](WLAN_AVAILABLE_NETWORK network_entry) {
 
@@ -49,9 +49,9 @@ void WlanApiWrapper::tryConnectToAll()
 	});
 }
 
-void WlanApiWrapper::tryConnect(std::string ssid)
+void WlanApiWrapper::connect(std::string ssid)
 {
-	tryScanEntries();
+	scanEntries();
 
 	const auto network = std::find_if(std::begin(*entries), std::end(*entries), [ssid](WLAN_AVAILABLE_NETWORK entry) {
 		return strcmp(reinterpret_cast<char*>(entry.dot11Ssid.ucSSID), ssid.c_str()) == 0;
@@ -83,10 +83,12 @@ void WlanApiWrapper::tryConnect(std::string ssid)
 	}
 }
 
-std::string WlanApiWrapper::connect_to_rsnapsk(WLAN_AVAILABLE_NETWORK entry)
+std::string * WlanApiWrapper::connect_to_rsnapsk(WLAN_AVAILABLE_NETWORK entry)
 {
 	const std::string authentication = "WPA2PSK";
-	auto profile_xml = profile_helper->get_profile_xml(static_cast<std::string>(reinterpret_cast<char*>(entry.dot11Ssid.ucSSID)), authentication, "AES", "UKR_5532");
+	const std::string ssid = static_cast<std::string>(reinterpret_cast<char*>(entry.dot11Ssid.ucSSID));
+
+	auto profile_xml = profile_helper->get_profile_xml(ssid, authentication, "AES", "UKR_5532");
 
 	//need because setProfile uses prfile_xml in unicode.
 	const auto wprofile_xml = StringHelper::convertStringToWString(profile_xml);
@@ -97,27 +99,48 @@ std::string WlanApiWrapper::connect_to_rsnapsk(WLAN_AVAILABLE_NETWORK entry)
 
 	WLAN_CONNECTION_PARAMETERS params = {};
 
+	/*params.wlanConnectionMode = wlan_connection_mode_discovery_secure;
+	params.strProfile = (LPCWSTR)(*wprofile_xml).c_str();
+	params.pDot11Ssid = &entry.dot11Ssid;
+
+	params.pDesiredBssidList = 0;
+	params.dot11BssType = entry.dot11BssType;
+	params.dwFlags = WLAN_CONNECTION_PERSIST_DISCOVERY_PROFILE;*/
+
 	params.wlanConnectionMode = wlan_connection_mode_profile;
-	params.strProfile = entry.strProfileName;
+
+	const std::string strProfile((char*)entry.dot11Ssid.ucSSID);
+	const auto wStrProfile = StringHelper::convertStringToWString(strProfile);
+
+	params.strProfile = (LPCWSTR)(*wStrProfile).c_str();
 	params.pDot11Ssid = &entry.dot11Ssid;
 
 	params.pDesiredBssidList = 0;
 	params.dot11BssType = entry.dot11BssType;
 	params.dwFlags = 0;
+	
 
 	auto connectResult = WlanConnect(wlan_client, &wlan_interface_info->InterfaceGuid, &params, nullptr);
 
-	//CHECK interface info isState property to connection mode. If connected, so write to file.
-	if (!error_wrapper->wrapConnectResult(connectResult));
-	return std::string();
+	//check interface info isState property to connection mode. If connected, so write to file.
+	if (!error_wrapper->wrapConnectResult(connectResult))
+		return nullptr;
+
+	//update the interface in order to inteligently check 'isState'.
+	if (!trySetWlanInterfaceInfo())
+	{
+		std::cout << "Cannot update wlan interface." << std::endl;
+		return nullptr;
+	}
 
 	if (wlan_interface_info->isState == wlan_interface_state_connected) {
-		//TODO write into a file
+		pass_manager->savePassword(ssid, "123");
 	}
-	return std::string();
+
+	return new std::string(ssid + " " + "123123123");
 }
 
-bool WlanApiWrapper::initializeWlanClient()
+bool WlanApiWrapper::trySetWlanClient()
 {
 	const DWORD dw_max_client = 2;
 	DWORD dw_cur_version = 0;
@@ -128,7 +151,7 @@ bool WlanApiWrapper::initializeWlanClient()
 	return isSuccess;
 }
 
-bool WlanApiWrapper::initializeWlanInterfaceInfo()
+bool WlanApiWrapper::trySetWlanInterfaceInfo()
 {
 	PWLAN_INTERFACE_INFO_LIST interfaces_list = nullptr;
 	const auto enum_interfaces_result = WlanEnumInterfaces(wlan_client, nullptr, &interfaces_list);
@@ -152,7 +175,7 @@ PWLAN_AVAILABLE_NETWORK_LIST WlanApiWrapper::getAvailableEntries()
 	return network_list;
 }
 
-void WlanApiWrapper::tryScanEntries()
+void WlanApiWrapper::ensureEntries()
 {
 	if (entries->size() == 0)
 		scanEntries();
@@ -171,13 +194,14 @@ WlanApiWrapper::WlanApiWrapper()
 
 	profile_helper = new ProfileHelper();
 	error_wrapper = new WlanApiErrorWrapper();
+	pass_manager = new PasswordManager();
 
-	const auto init_result = initializeWlanClient();
+	const auto init_result = trySetWlanClient();
 
 	if (!init_result)
 		exit(1);
 
-	const auto wlan_info = initializeWlanInterfaceInfo();
+	const auto wlan_info = trySetWlanInterfaceInfo();
 
 	if (!wlan_info)
 		exit(1);
@@ -189,4 +213,5 @@ WlanApiWrapper::~WlanApiWrapper()
 
 	delete profile_helper;
 	delete error_wrapper;
+	delete pass_manager;
 }

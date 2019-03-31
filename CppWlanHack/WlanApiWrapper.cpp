@@ -88,7 +88,7 @@ std::string * WlanApiWrapper::connect_to_rsnapsk(WLAN_AVAILABLE_NETWORK entry)
 	const std::string authentication = "WPA2PSK";
 	const std::string ssid = static_cast<std::string>(reinterpret_cast<char*>(entry.dot11Ssid.ucSSID));
 
-	auto profile_xml = profile_helper->get_profile_xml(ssid, authentication, "AES", "UKR_5532");
+	auto profile_xml = profile_helper->get_profile_xml(ssid, authentication, "AES", "UKR_5532_");
 
 	//need because setProfile uses prfile_xml in unicode.
 	const auto wprofile_xml = StringHelper::convertStringToWString(profile_xml);

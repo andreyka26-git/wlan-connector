@@ -5,7 +5,7 @@
 
 #include "ProfileHelper.h"
 #include "WlanApiErrorWrapper.h"
-#include "PasswordManager.h"
+#include "HackFileManager.h"
 
 class WlanApiWrapper
 {
@@ -23,7 +23,7 @@ class WlanApiWrapper
 	WlanApiErrorWrapper * error_wrapper = nullptr;
 
 	//Password manager, saves and make operations on ssids and passwords.
-	PasswordManager * pass_manager = nullptr;
+	HackFileManager * pass_manager = nullptr;
 
 	//METHODS
 	//Try to scan network and exit app if not entries is found.

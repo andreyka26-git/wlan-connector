@@ -10,7 +10,8 @@ class HackFileManager
 	void initializeEnvironment();
 public:
 	void savePassword(const std::string &ssid, const std::string &pass);
-	std::vector<std::string> * getDictionaryWords();
+	std::vector<std::string> * getDictionaryFilePaths();
+	std::vector<std::string> * getWordsFromDictionary(const std::string &dictionary_name);
 
 	HackFileManager();
 	~HackFileManager();

@@ -1,6 +1,8 @@
 #include <iostream>
 #include "WlanApiWrapper.h"
 
+#include <boost/filesystem.hpp>
+
 int main()
 {
 	WlanApiWrapper wlanWrapper;

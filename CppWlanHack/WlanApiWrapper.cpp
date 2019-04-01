@@ -152,6 +152,7 @@ std::string * WlanApiWrapper::connect_to_rsnapsk(WLAN_AVAILABLE_NETWORK entry)
 	}
 
 	delete file_paths;
+	return nullptr;
 }
 
 bool WlanApiWrapper::trySetWlanClient()

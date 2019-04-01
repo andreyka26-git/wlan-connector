@@ -143,6 +143,7 @@ std::string * WlanApiWrapper::connect_to_rsnapsk(WLAN_AVAILABLE_NETWORK entry)
 			}
 
 			if (wlan_interface_info->isState == wlan_interface_state_connected) {
+				std::cout << ssid << " : " << pass << std::endl;
 				pass_manager->savePassword(ssid, pass);
 				return new std::string(ssid + " " + pass);
 			}

@@ -273,3 +273,6 @@ __pycache__/
 *.pyc
 CppWlanHack/pch.h
 CppWlanHack/pch.cpp
+CppWlanHack/dictionary_files/8x.dic
+CppWlanHack/dictionary_files/9mil.txt
+CppWlanHack/dictionary_files/UA MOBILE.txt

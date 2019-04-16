@@ -5,10 +5,13 @@
 
 #include "ProfileHelper.h"
 #include "WlanApiErrorWrapper.h"
-#include "HackFileManager.h"
 
 class WlanApiWrapper
 {
+	//CONSTS
+	const char * DefaultAuthenticationProtocol = "WPA2PSK";
+	const char * DefaultEncryption = "AES";
+
 	//FIELDS
 	HANDLE wlan_client = nullptr;
 	PWLAN_INTERFACE_INFO wlan_interface_info = nullptr;
@@ -19,36 +22,27 @@ class WlanApiWrapper
 	//Service for creating and managing of xml profile
 	ProfileHelper * profile_helper = nullptr;
 
-	//Service for wrapping method result of Wlan api
-	WlanApiErrorWrapper * error_wrapper = nullptr;
-
-	//Password manager, saves and make operations on ssids and passwords.
-	HackFileManager * pass_manager = nullptr;
-
 	//METHODS
 	//Try to scan network and exit app if not entries is found.
-	void scanEntries();
+	void scan_entries() const;
 
 	//Initialize wlan handle to work with Wlan
-	bool trySetWlanClient();
+	bool try_set_wlan_client();
 
 	//Initialize wlan interface (wifi driver) to work with Wlan
-	bool trySetWlanInterfaceInfo();
+	bool try_set_wlan_interface_info();
 
 	//Gets all open wifi endpoints
-	PWLAN_AVAILABLE_NETWORK_LIST getAvailableEntries();
+	PWLAN_AVAILABLE_NETWORK_LIST getAvailableEntries() const;
 
 	//Connect via RSNAPSK algorithm
-	std::string * connect_to_rsnapsk(WLAN_AVAILABLE_NETWORK entry);
+	bool connect_to_rsnapsk(WLAN_AVAILABLE_NETWORK entry, const char *ssid, const char * pass);
 public:
-	//Try to connects to all wifi
-	void connectToAll();
-
-	//Try connect to specefic SSID
-	void connect(std::string ssid);
+	//Try connect to specific SSID
+	bool connect(const char *ssid, const char * pass);
 
 	//Scans and saves wifi entries to memory
-	void ensureEntries();
+	void ensure_entries() const;
 
 	WlanApiWrapper();
 	~WlanApiWrapper();

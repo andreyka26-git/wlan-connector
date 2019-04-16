@@ -91,6 +91,9 @@
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
+      <AdditionalUsingDirectories>
+      </AdditionalUsingDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)/Infrastructure</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -106,7 +109,9 @@
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
-      <AdditionalIncludeDirectories>$(SolutionDir)/dependencies;$(SolutionDir)/Helpers</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)/Infrastructure</AdditionalIncludeDirectories>
+      <AdditionalUsingDirectories>
+      </AdditionalUsingDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -125,6 +130,9 @@
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
+      <AdditionalUsingDirectories>
+      </AdditionalUsingDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)/Infrastructure</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -144,6 +152,9 @@
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
+      <AdditionalUsingDirectories>
+      </AdditionalUsingDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)/Infrastructure</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -154,17 +165,15 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="CppWlanHack.cpp" />
-    <ClCompile Include="HackFileManager.cpp" />
     <ClCompile Include="WlanApiErrorWrapper.cpp" />
     <ClCompile Include="WlanApiWrapper.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="HackFileManager.h" />
     <ClInclude Include="WlanApiErrorWrapper.h" />
     <ClInclude Include="WlanApiWrapper.h" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Helpers\Helpers.vcxproj">
+    <ProjectReference Include="..\Infrastructure\Infrastructure.vcxproj">
       <Project>{9ffc3d40-db1b-43b1-b8d3-58bcc9af0252}</Project>
     </ProjectReference>
   </ItemGroup>

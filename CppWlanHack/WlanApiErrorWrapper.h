@@ -1,26 +1,22 @@
 #pragma once
 #include <windows.h>
-#include <wlanapi.h>
 
 class WlanApiErrorWrapper
 {
 public:
 	//Wraps OpenHandle method errors
-	bool wrapOpenHandleResult(const DWORD);
+	static bool wrap_open_handle_result(const DWORD);
 
 	//Wraps EnumInterfaces method errors
-	bool wrapEnumInterfacesResult(const DWORD);
+	static bool wrap_enum_interfaces_result(const DWORD);
 
 	//Wraps GetNetworkListResul method errors
-	bool wrapGetNetworkListResult(const DWORD);
+	static bool wrap_get_network_list_result(const DWORD);
 
 	//Wraps SetProfile method errors
-	bool wrapSetProfileResult(const DWORD, const DWORD);
+	static bool wrap_set_profile_result(const DWORD, const DWORD);
 
 	//Wraps Connect method errors
-	bool wrapConnectResult(DWORD);
-
-	WlanApiErrorWrapper();
-	~WlanApiErrorWrapper();
+	static bool wrap_connect_result(DWORD);
 };
 

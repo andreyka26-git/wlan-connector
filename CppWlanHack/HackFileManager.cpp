@@ -18,7 +18,7 @@ bool HackFileManager::isElementExists(const std::string & path)
 
 void HackFileManager::createDirectory(const std::string & path)
 {
-	boost::filesystem::path dir_path(path.c_str);
+	boost::filesystem::path dir_path(path.c_str());
 	boost::filesystem::create_directory(dir_path);
 }
 

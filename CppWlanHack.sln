@@ -5,6 +5,8 @@ VisualStudioVersion = 15.0.28307.271
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "CppWlanHack", "CppWlanHack\CppWlanHack.vcxproj", "{3EAE7349-CF14-4C70-A031-42F6D4997A44}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Helpers", "Helpers\Helpers.vcxproj", "{9FFC3D40-DB1B-43B1-B8D3-58BCC9AF0252}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -21,6 +23,14 @@ Global
 		{3EAE7349-CF14-4C70-A031-42F6D4997A44}.Release|x64.Build.0 = Release|x64
 		{3EAE7349-CF14-4C70-A031-42F6D4997A44}.Release|x86.ActiveCfg = Release|Win32
 		{3EAE7349-CF14-4C70-A031-42F6D4997A44}.Release|x86.Build.0 = Release|Win32
+		{9FFC3D40-DB1B-43B1-B8D3-58BCC9AF0252}.Debug|x64.ActiveCfg = Debug|x64
+		{9FFC3D40-DB1B-43B1-B8D3-58BCC9AF0252}.Debug|x64.Build.0 = Debug|x64
+		{9FFC3D40-DB1B-43B1-B8D3-58BCC9AF0252}.Debug|x86.ActiveCfg = Debug|Win32
+		{9FFC3D40-DB1B-43B1-B8D3-58BCC9AF0252}.Debug|x86.Build.0 = Debug|Win32
+		{9FFC3D40-DB1B-43B1-B8D3-58BCC9AF0252}.Release|x64.ActiveCfg = Release|x64
+		{9FFC3D40-DB1B-43B1-B8D3-58BCC9AF0252}.Release|x64.Build.0 = Release|x64
+		{9FFC3D40-DB1B-43B1-B8D3-58BCC9AF0252}.Release|x86.ActiveCfg = Release|Win32
+		{9FFC3D40-DB1B-43B1-B8D3-58BCC9AF0252}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

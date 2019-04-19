@@ -164,18 +164,17 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="ProfileHelper.cpp" />
+    <ClCompile Include="StringHelper.cpp" />
     <ClCompile Include="CppWlanHack.cpp" />
     <ClCompile Include="WlanApiErrorWrapper.cpp" />
     <ClCompile Include="WlanApiWrapper.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="ProfileHelper.h" />
+    <ClInclude Include="StringHelper.h" />
     <ClInclude Include="WlanApiErrorWrapper.h" />
     <ClInclude Include="WlanApiWrapper.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\Infrastructure\Infrastructure.vcxproj">
-      <Project>{9ffc3d40-db1b-43b1-b8d3-58bcc9af0252}</Project>
-    </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

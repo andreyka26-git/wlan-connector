@@ -23,12 +23,12 @@ void WlanApiWrapper::scan_entries() const
 	WlanFreeMemory(network_list);
 }
 
-bool WlanApiWrapper::connect(const char *ssid, const char * pass)
+bool WlanApiWrapper::connect(const char *ssid, const char * pass) const
 {
 	ensure_entries();
 
-	//TODO suppress line
-	const auto network = std::find_if(std::begin(*entries), std::end(*entries), [ssid](WLAN_AVAILABLE_NETWORK entry) 
+	const auto network = std::find_if(std::begin(*entries), std::end(*entries), 
+		[ssid](WLAN_AVAILABLE_NETWORK entry) 
 	{
 		return StringHelper::is_equal(entry.dot11Ssid.ucSSID, ssid);
 	});
@@ -38,28 +38,46 @@ bool WlanApiWrapper::connect(const char *ssid, const char * pass)
 		return false;
 	}
 
-	switch ((*network).dot11DefaultAuthAlgorithm) {
-	case DOT11_AUTH_ALGO_80211_OPEN:
-		std::cout << "802.11 Open " << (*network).dot11DefaultAuthAlgorithm << std::endl;
-		break;
-	case DOT11_AUTH_ALGO_80211_SHARED_KEY:
-		std::cout << "802.11 Shared " << (*network).dot11DefaultAuthAlgorithm << std::endl;
-		break;
-	case DOT11_AUTH_ALGO_WPA:
-		std::cout << "WPA " << (*network).dot11DefaultAuthAlgorithm << std::endl;
-		break;
-	case DOT11_AUTH_ALGO_WPA_PSK:
-		std::cout << "WPA " << (*network).dot11DefaultAuthAlgorithm << std::endl;
-		break;
-	case DOT11_AUTH_ALGO_RSNA_PSK:
-		return connect_to_rsnapsk(*network, ssid, pass);
-	default:
-		break;
+	const auto connect_method = map_algorithm_to_method(*network);
+	
+	if(connect_method == nullptr)
+	{
+		std::cout << "cannot resolve connect method." << std::endl;
+		return false;
 	}
+
+	//TODO WTF. why its not compatible with this pointer
+	WlanApiWrapper f;
+	(f.*connect_method)(*network, ssid, pass);
+	
 	return false;
 }
 
-bool WlanApiWrapper::connect_to_rsnapsk(WLAN_AVAILABLE_NETWORK entry, const char *ssid, const char *pass)
+WlanApiWrapper::connect_func WlanApiWrapper::map_algorithm_to_method(WLAN_AVAILABLE_NETWORK & network)
+{
+	switch (network.dot11DefaultAuthAlgorithm) {
+	case DOT11_AUTH_ALGO_80211_OPEN:
+		std::cout << "802.11 Open " << network.dot11DefaultAuthAlgorithm << std::endl;
+		break;
+	case DOT11_AUTH_ALGO_80211_SHARED_KEY:
+		std::cout << "802.11 Shared " << network.dot11DefaultAuthAlgorithm << std::endl;
+		break;
+	case DOT11_AUTH_ALGO_WPA:
+		std::cout << "WPA " << network.dot11DefaultAuthAlgorithm << std::endl;
+		break;
+	case DOT11_AUTH_ALGO_WPA_PSK:
+		std::cout << "WPA " << network.dot11DefaultAuthAlgorithm << std::endl;
+		break;
+	case DOT11_AUTH_ALGO_RSNA_PSK:
+			return &WlanApiWrapper::try_connect_to_rsnapsk;
+	default:
+		break;
+	}
+
+	return nullptr;
+}
+
+bool WlanApiWrapper::try_connect_to_rsnapsk(WLAN_AVAILABLE_NETWORK entry, const char *ssid, const char *pass)
 {
 	const auto profile_xml =
 		profile_helper->get_profile_xml(ssid, DefaultAuthenticationProtocol, DefaultEncryption, pass);
@@ -75,22 +93,10 @@ bool WlanApiWrapper::connect_to_rsnapsk(WLAN_AVAILABLE_NETWORK entry, const char
 		return false;
 	}
 
-	//TODO replace to single method
-	WLAN_CONNECTION_PARAMETERS params;
+	const auto params = build_wlan_parameters(entry, ssid, pass);
+	const auto connect_result = WlanConnect(wlan_client, &wlan_interface_info->InterfaceGuid, params, nullptr);
 
-	params.wlanConnectionMode = wlan_connection_mode_profile;
-
-	const std::string ssid_str(ssid);
-	const auto w_ssid_str = StringHelper::convert_string_to_w_string(ssid_str);
-
-	params.strProfile = static_cast<LPCWSTR>(w_ssid_str->c_str());
-	params.pDot11Ssid = &entry.dot11Ssid;
-
-	params.pDesiredBssidList = nullptr;
-	params.dot11BssType = entry.dot11BssType;
-	params.dwFlags = 0;
-
-	const auto connect_result = WlanConnect(wlan_client, &wlan_interface_info->InterfaceGuid, &params, nullptr);
+	delete params;
 
 	//check interface info isState property to connection mode. If connected, so write to file.
 	if (!WlanApiErrorWrapper::wrap_connect_result(connect_result))
@@ -111,6 +117,26 @@ bool WlanApiWrapper::connect_to_rsnapsk(WLAN_AVAILABLE_NETWORK entry, const char
 	}
 
 	return false;
+}
+
+PWLAN_CONNECTION_PARAMETERS WlanApiWrapper::build_wlan_parameters(WLAN_AVAILABLE_NETWORK entry, const char* ssid,
+	const char* pass)
+{
+	const auto params = new WLAN_CONNECTION_PARAMETERS();
+
+	params->wlanConnectionMode = wlan_connection_mode_profile;
+
+	const std::string ssid_str(ssid);
+	const auto w_ssid_str = StringHelper::convert_string_to_w_string(ssid_str);
+
+	params->strProfile = static_cast<LPCWSTR>(w_ssid_str->c_str());
+	params->pDot11Ssid = &entry.dot11Ssid;
+
+	params->pDesiredBssidList = nullptr;
+	params->dot11BssType = entry.dot11BssType;
+	params->dwFlags = 0;
+
+	return params;
 }
 
 bool WlanApiWrapper::try_set_wlan_client()

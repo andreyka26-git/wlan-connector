@@ -7,6 +7,9 @@
     <Filter Include="Core">
       <UniqueIdentifier>{eb5e5150-1980-4ef7-a8d0-bf0ca19a87f9}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Resources">
+      <UniqueIdentifier>{d55ffa86-0bbc-4ec5-a5d4-2c39d020ff43}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ProfileHelper.cpp">
@@ -36,5 +39,10 @@
     <ClInclude Include="WlanApiWrapper.h">
       <Filter>Core</Filter>
     </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Xml Include="profile.xml">
+      <Filter>Resources</Filter>
+    </Xml>
   </ItemGroup>
 </Project>

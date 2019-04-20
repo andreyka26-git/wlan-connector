@@ -46,7 +46,7 @@ class WlanApiWrapper
 	static PWLAN_CONNECTION_PARAMETERS build_wlan_parameters(WLAN_AVAILABLE_NETWORK entry, const char *ssid, const char * pass);
 public:
 	//Try connect to specific SSID
-	bool connect(const char *ssid, const char * pass) const;
+	bool connect(const char *ssid, const char * pass);
 
 	//Scans and saves wifi entries to memory
 	void ensure_entries() const;

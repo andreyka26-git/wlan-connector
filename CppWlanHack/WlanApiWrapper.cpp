@@ -23,7 +23,7 @@ void WlanApiWrapper::scan_entries() const
 	WlanFreeMemory(network_list);
 }
 
-bool WlanApiWrapper::connect(const char *ssid, const char * pass) const
+bool WlanApiWrapper::connect(const char *ssid, const char * pass)
 {
 	ensure_entries();
 
@@ -46,9 +46,7 @@ bool WlanApiWrapper::connect(const char *ssid, const char * pass) const
 		return false;
 	}
 
-	//TODO WTF. why its not compatible with this pointer
-	WlanApiWrapper f;
-	(f.*connect_method)(*network, ssid, pass);
+	(this->*connect_method)(*network, ssid, pass);
 	
 	return false;
 }

@@ -8,6 +8,7 @@
 
 #include "WlanApiErrorWrapper.h"
 #include "StringHelper.h"
+#include "NotificationContext.h"
 
 #pragma comment(lib, "wlanapi.lib")
 #pragma comment(lib, "ole32.lib")
@@ -21,6 +22,49 @@ void WlanApiWrapper::scan_entries() const
 	}
 
 	WlanFreeMemory(network_list);
+}
+
+void WlanApiWrapper::wlan_notification_callback(PWLAN_NOTIFICATION_DATA notification_data, PVOID context)
+{
+	const auto authenticate_model = static_cast<NotificationContext*>(context);
+
+	//WLAN_NOTIFICATION_SOURCE_MSM
+	switch(notification_data->NotificationSource)
+	{
+	case WLAN_NOTIFICATION_SOURCE_MSM: std::cout << "WLAN_NOTIFICATION_SOURCE_MSM" << std::endl; break;
+	default: std::cout << "Unknown notification source" << std::endl;
+	}
+
+	switch(notification_data->NotificationCode)
+	{
+	case wlan_notification_msm_connected:std::cout << authenticate_model->get_ssid() << " has pass: " << authenticate_model->get_pass() << std::endl; break;
+
+	case wlan_notification_msm_associating:std::cout << "wlan_notification_msm_associating" << std::endl; break;
+
+	case wlan_notification_msm_associated:std::cout << "wlan_notification_msm_associated" << std::endl; break;
+
+	case wlan_notification_msm_authenticating:std::cout << "wlan_notification_msm_authenticating" << std::endl; break;
+
+	case wlan_notification_msm_roaming_start:std::cout << "wlan_notification_msm_roaming_start" << std::endl; break;
+
+	case wlan_notification_msm_radio_state_change:std::cout << "wlan_notification_msm_radio_state_change" << std::endl; break;
+
+	case wlan_notification_msm_disassociating:std::cout << "wlan_notification_msm_disassociating" << std::endl; break;
+
+	case wlan_notification_msm_disconnected:std::cout << "wlan_notification_msm_disconnected" << std::endl; break;
+
+	case wlan_notification_msm_peer_join:std::cout << "wlan_notification_msm_peer_join" << std::endl; break;
+
+	case wlan_notification_msm_peer_leave:std::cout << "wlan_notification_msm_peer_leave" << std::endl; break;
+
+	case wlan_notification_msm_adapter_removal:std::cout << "wlan_notification_msm_adapter_removal" << std::endl; break;
+
+	case wlan_notification_msm_adapter_operation_mode_change:std::cout << "wlan_notification_msm_adapter_operation_mode_change" << std::endl; break;
+
+	default: std::cout << "unknown notification code"; break;
+	}
+
+	//delete authenticate_model;
 }
 
 bool WlanApiWrapper::connect(const char *ssid, const char * pass)
@@ -47,8 +91,22 @@ bool WlanApiWrapper::connect(const char *ssid, const char * pass)
 	}
 
 	(this->*connect_method)(*network, ssid, pass);
-	
-	return false;
+
+	//settings context
+	//TODO make it smart pointer
+	const auto notification_context  = new NotificationContext(ssid, pass);
+
+	//registering callback on connecting
+	const auto set_notification_result = WlanRegisterNotification(
+		wlan_client,
+		WLAN_NOTIFICATION_SOURCE_ALL,
+		true,
+		wlan_notification_callback,
+		notification_context,
+		nullptr,
+		nullptr);
+
+	return WlanApiErrorWrapper::wrap_set_connect_notification_result(set_notification_result);
 }
 
 WlanApiWrapper::connect_func WlanApiWrapper::map_algorithm_to_method(WLAN_AVAILABLE_NETWORK & network)
@@ -102,8 +160,10 @@ bool WlanApiWrapper::try_connect_to_rsnapsk(WLAN_AVAILABLE_NETWORK entry, const 
 
 	//TODO ensure delay
 
+	return true;
+
 	//update the interface in order to intelligently check 'isState'.
-	if (!try_set_wlan_interface_info())
+	/*if (!try_set_wlan_interface_info())
 	{
 		std::cout << "Cannot update wlan interface." << std::endl;
 		return false;
@@ -114,7 +174,7 @@ bool WlanApiWrapper::try_connect_to_rsnapsk(WLAN_AVAILABLE_NETWORK entry, const 
 		return true;
 	}
 
-	return false;
+	return false;*/
 }
 
 PWLAN_CONNECTION_PARAMETERS WlanApiWrapper::build_wlan_parameters(WLAN_AVAILABLE_NETWORK entry, const char* ssid,

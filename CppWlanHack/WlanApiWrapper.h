@@ -44,6 +44,11 @@ class WlanApiWrapper
 
 	//Build wlan connection parameters
 	static PWLAN_CONNECTION_PARAMETERS build_wlan_parameters(WLAN_AVAILABLE_NETWORK entry, const char *ssid, const char * pass);
+
+	//Callback for WlanConnect
+	//context custom - context passed to the callback
+	//notification_data - info about the notification 
+	static void wlan_notification_callback(PWLAN_NOTIFICATION_DATA notification_data, PVOID context);
 public:
 	//Try connect to specific SSID
 	bool connect(const char *ssid, const char * pass);

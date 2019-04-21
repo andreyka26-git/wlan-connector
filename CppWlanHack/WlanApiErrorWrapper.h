@@ -18,5 +18,8 @@ public:
 
 	//Wraps Connect method errors
 	static bool wrap_connect_result(DWORD);
+
+	//Wraps WlanRegisterNotification result
+	static bool wrap_set_connect_notification_result(const DWORD);
 };
 

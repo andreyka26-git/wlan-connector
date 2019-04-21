@@ -10,6 +10,9 @@
     <Filter Include="Resources">
       <UniqueIdentifier>{d55ffa86-0bbc-4ec5-a5d4-2c39d020ff43}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Models">
+      <UniqueIdentifier>{005f0f9d-8d39-4bdb-a8b6-3a6f9f4a8bb7}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ProfileHelper.cpp">
@@ -25,6 +28,9 @@
       <Filter>Core</Filter>
     </ClCompile>
     <ClCompile Include="CppWlanHack.cpp" />
+    <ClCompile Include="NotificationContext.cpp">
+      <Filter>Models</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ProfileHelper.h">
@@ -38,6 +44,9 @@
     </ClInclude>
     <ClInclude Include="WlanApiWrapper.h">
       <Filter>Core</Filter>
+    </ClInclude>
+    <ClInclude Include="NotificationContext.h">
+      <Filter>Models</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

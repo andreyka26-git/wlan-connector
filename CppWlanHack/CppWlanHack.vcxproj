@@ -164,6 +164,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="NotificationContext.cpp" />
     <ClCompile Include="ProfileHelper.cpp" />
     <ClCompile Include="StringHelper.cpp" />
     <ClCompile Include="CppWlanHack.cpp" />
@@ -171,6 +172,7 @@
     <ClCompile Include="WlanApiWrapper.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="NotificationContext.h" />
     <ClInclude Include="ProfileHelper.h" />
     <ClInclude Include="StringHelper.h" />
     <ClInclude Include="WlanApiErrorWrapper.h" />

@@ -121,3 +121,20 @@ bool WlanApiErrorWrapper::wrap_connect_result(DWORD connectResult)
 	}
 	return true;
 }
+
+bool WlanApiErrorWrapper::wrap_set_connect_notification_result(const DWORD result)
+{
+	if (result == ERROR_SUCCESS)
+		return true;
+
+	switch (result)
+	{
+	case ERROR_INVALID_PARAMETER: std::cout << "Some parameters is invalid." << std::endl; break;
+
+	case ERROR_INVALID_HANDLE: std::cout << "Invalid wlan client." << std::endl; break;
+
+	case ERROR_NOT_ENOUGH_MEMORY: std::cout << "Not enough memory." << std::endl; break;
+	default: std::cout << "Some undocumented error." << std::endl; break;
+	}
+	return false;
+}
